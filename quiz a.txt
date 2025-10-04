@@ -1,0 +1,111 @@
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+    /* Escribe un programa en C++ que declare tres variables:
+    una de tipo entero, una de tipo flotante y una de tipo carácter. 
+    Inicializa las variables con valores adecuados e imprime 
+    sus valores en consola.*/
+    
+    int a = 8;
+    float b = 3.8;
+    const char c = 'H';
+    
+    cout<< a <<"\n";
+    cout<< b <<"\n";
+    cout<< c <<"\n";
+    
+    /*iNT: SERIA PARA UN NUMERO ENTERO SIN FRACCIÓN, SE USARIA CUANDO NECESITES UNA 
+    VARIABLE QUE SEA UN NUMERO O EN ALGUN CICLO Y NECESITES SABER CUANTES VECES PASA
+    POR ALGÚN LADO. EL FLOAT PARA CUANDO NECESITES ALGUNA VARIBLE QUE DE COMO RESULTADO
+    UNA FRACCIÓN. Y EL CHAR PARA CUANDO NECESITES ESCRIBIR ALGUNA VARIBLE EN CADENA DE 
+    CARACTERES TIPO EL NOMBRE, APELLIDO, DIA, ALGUNA COSA*/
+    
+    int A;
+    int G;
+    cout<<"Ingrese el primer numero:";
+    cin>> A;
+    cout<<"Ingrese el segundo numero:";
+    cin>> G;
+    int suma = A + G;
+    int resta = A - G;
+    int mult = A * G;
+    int modulo = A % G;
+    
+    cout<<"La suma de "<<A<<" + "<<G<<" = "<< suma <<"\n\n";
+    cout<<"La resta de "<<A<<" - "<<G<<" = "<< resta <<"\n\n";
+    cout<<"La multiplicación de "<<A<<" x "<<G<<" = "<< mult <<"\n\n";
+    cout<<"El modulo de "<<A<<" % "<<G<<" = "<< modulo <<"\n\n";
+    
+    /*DE == es que es axactamente igual al otro, y el != a no es igual al otro*/
+    //Ejemplo de ==
+    cout  << A << " == " << G << " es " << (A == G) << "\n";
+    
+    //Ejemplo de !=
+    cout  << A << " != " << G << " es " << (A != G) << "\n";
+    
+    //Se usan para cuando se cumpla la condición pase algo.
+    
+    bool primeraC = false;
+    bool segundaC = true;
+    
+    cout << "   AND (&&): " << primeraC << " && " << segundaC << " = " << (primeraC && segundaC) << "\n";
+    cout << "   OR (||): " << primeraC << " || " << segundaC << " = " << (primeraC || segundaC) << "\n";
+    cout << "   NOT (!): !" << primeraC << " = " << (!primeraC) << "\n";
+    cout << "   NOT (!): !" << primeraC << " = " << (!segundaC) << "\n\n";
+
+    
+    int edad = 0;
+    cout<<"Ingrese su edad: ";
+    cin>> edad;
+    if (edad >=18){
+        cout<<"Eres mayor de edad"<<"\n\n";
+        }else{
+            cout<<"NO eres mayor de edad"<<"\n\n";
+
+        }
+        
+    //La estructura if se utiliza para si sucede esto haz esto y sino(else) pues haz esto otro
+    cout<<"Ingrese su edad: ";
+    cin>> edad;
+    if (edad >=18){
+        cout<<"Eres mayor de edad"<<"\n\n";
+        }else{
+            cout<<"NO eres mayor de edad"<<"\n\n";
+
+        }
+        
+    for(int i = 1; i<=10; i++){
+        cout<<i<<" ";
+    }
+    
+    int contador = 10;
+    while(contador==1){
+        cout<<contador<<" ";
+        contador--;
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
