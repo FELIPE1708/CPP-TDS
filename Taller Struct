@@ -1,0 +1,258 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+using namespace std;
+
+//
+// 1 y 2. Struct Producto con constructores, métodos const y validación
+//
+struct Producto {
+    string nombre;
+    double precio;
+    int stock;
+
+    // Constructor con valores por defecto
+    Producto(string n = "", double p = 0.0, int s = 0)
+        : nombre(n), precio(p), stock(s) {}
+
+    // Método para saber si hay stock
+    bool disponible() const {
+        return stock > 0;
+    }
+
+    // Método para validar producto
+    bool esValido() const {
+        return !nombre.empty() && precio >= 0;
+    }
+
+    // Mostrar información
+    void mostrar() const {
+        cout << "Nombre: " << nombre
+             << ", Precio: " << precio
+             << ", Stock: " << stock << endl;
+    }
+
+    // Operador == (por nombre, sin importar mayúsculas)
+    bool operator==(const Producto& otro) const {
+        string a = nombre, b = otro.nombre;
+        transform(a.begin(), a.end(), a.begin(), ::tolower);
+        transform(b.begin(), b.end(), b.begin(), ::tolower);
+        return a == b;
+    }
+
+    // Operador < (por precio, luego por nombre)
+    bool operator<(const Producto& otro) const {
+        if (precio != otro.precio)
+            return precio < otro.precio;
+        return nombre < otro.nombre;
+    }
+};
+
+//
+// 4. Estructura para representar un polinomio
+//
+struct Polinomio {
+    vector<double> coef;  // coef[i] representa el coeficiente de x^i
+
+    // Constructor desde vector
+    Polinomio(const vector<double>& c) : coef(c) {}
+
+    // Evaluar el polinomio en x
+    double evaluar(double x) const {
+        double resultado = 0;
+        for (int i = 0; i < coef.size(); ++i)
+            resultado += coef[i] * pow(x, i);
+        return resultado;
+    }
+
+    // Mostrar
+    void mostrar() const {
+        cout << "P(x) = ";
+        for (int i = coef.size() - 1; i >= 0; --i) {
+            cout << coef[i] << "x^" << i;
+            if (i > 0) cout << " + ";
+        }
+        cout << endl;
+    }
+};
+
+//
+// 5. Sistema de inventario más complejo
+//
+struct Inventario {
+    vector<Producto> productos;
+
+    // Agregar producto
+    void agregar(const Producto& p) {
+        if (p.esValido()) productos.push_back(p);
+    }
+
+    // Mostrar todos
+    void mostrar() const {
+        cout << "\n=== Inventario ===\n";
+        for (const auto& p : productos) p.mostrar();
+    }
+
+    // Ordenar
+    void ordenar() {
+        sort(productos.begin(), productos.end());
+    }
+
+    // Buscar por nombre
+    void buscar(const string& nombre) const {
+        Producto temp(nombre);
+        auto it = find(productos.begin(), productos.end(), temp);
+        if (it != productos.end()) {
+            cout << "Encontrado:\n";
+            it->mostrar();
+        } else {
+            cout << "No encontrado: " << nombre << endl;
+        }
+    }
+};
+
+//
+// 6. Estructura para representar una fracción
+//
+struct Fraccion {
+    int num, den;
+
+    // Constructor con validación
+    Fraccion(int n = 0, int d = 1) {
+        if (d == 0) {
+            cout << "Error: denominador no puede ser 0. Se usará 1.\n";
+            den = 1;
+        } else den = d;
+        num = n;
+        simplificar();
+    }
+
+    // Simplificar fracción
+    void simplificar() {
+        int a = abs(num), b = abs(den);
+        while (b != 0) {
+            int t = b;
+            b = a % b;
+            a = t;
+        }
+        if (a > 0) {
+            num /= a;
+            den /= a;
+        }
+        if (den < 0) {  // mantener denominador positivo
+            num *= -1;
+            den *= -1;
+        }
+    }
+
+    // Operaciones
+    Fraccion operator+(const Fraccion& f) const {
+        return Fraccion(num * f.den + f.num * den, den * f.den);
+    }
+
+    Fraccion operator-(const Fraccion& f) const {
+        return Fraccion(num * f.den - f.num * den, den * f.den);
+    }
+
+    Fraccion operator*(const Fraccion& f) const {
+        return Fraccion(num * f.num, den * f.den);
+    }
+
+    Fraccion operator/(const Fraccion& f) const {
+        return Fraccion(num * f.den, den * f.num);
+    }
+
+    void mostrar() const {
+        cout << num << "/" << den;
+    }
+};
+
+//
+// 7. Sistema de gestión de contactos
+//
+struct Contacto {
+    string nombre;
+    string telefono;
+    string correo;
+};
+
+struct Agenda {
+    vector<Contacto> contactos;
+
+    void agregar(const Contacto& c) {
+        contactos.push_back(c);
+    }
+
+    void mostrar() const {
+        cout << "\n=== Contactos ===\n";
+        for (const auto& c : contactos) {
+            cout << "Nombre: " << c.nombre
+                 << ", Tel: " << c.telefono
+                 << ", Correo: " << c.correo << endl;
+        }
+    }
+
+    void buscar(const string& nombre) const {
+        for (const auto& c : contactos)
+            if (c.nombre == nombre) {
+                cout << "Encontrado: " << c.nombre << " - " << c.telefono << endl;
+                return;
+            }
+        cout << "No encontrado: " << nombre << endl;
+    }
+};
+
+//
+// PROGRAMA PRINCIPAL
+//
+int main() {
+    // Ejercicios 1-3
+    Producto p1("Manzanas");
+    Producto p2("Peras", 2.5);
+    Producto p3("Bananas", 3.2, 15);
+    Producto p4("", -5); // Inválido
+
+    vector<Producto> lista = {p1, p2, p3, p4};
+
+    cout << "=== Productos válidos ===\n";
+    lista.erase(remove_if(lista.begin(), lista.end(),
+        [](const Producto& p){ return !p.esValido() || !p.disponible(); }),
+        lista.end());
+
+    sort(lista.begin(), lista.end());
+
+    for (const auto& p : lista) p.mostrar();
+
+    // Inventario (ejercicio 5)
+    Inventario inv;
+    inv.agregar(p1);
+    inv.agregar(p2);
+    inv.agregar(p3);
+    inv.ordenar();
+    inv.mostrar();
+    inv.buscar("Peras");
+
+    // Polinomio (ejercicio 4)
+    Polinomio poli({2, -3, 1}); // x² - 3x + 2
+    poli.mostrar();
+    cout << "P(2) = " << poli.evaluar(2) << endl;
+
+    // Fracción (ejercicio 6)
+    Fraccion f1(2, 3), f2(3, 4);
+    Fraccion suma = f1 + f2;
+    cout << "\nFracciones: ";
+    f1.mostrar(); cout << " + "; f2.mostrar();
+    cout << " = "; suma.mostrar(); cout << endl;
+
+    // Agenda (ejercicio 7)
+    Agenda agenda;
+    agenda.agregar({"Juan Perez", "321456789", "juan@mail.com"});
+    agenda.agregar({"Maria Gomez", "312999111", "maria@mail.com"});
+    agenda.mostrar();
+    agenda.buscar("Maria Gomez");
+
+    return 0;
+}
