@@ -1,0 +1,648 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <limits>
+#include <iomanip>
+#include <cctype>
+
+using namespace std;
+
+/* ============================================================
+   EJERCICIO 1: Estadísticas básicas de un arreglo — 10 pts
+   ============================================================ */
+
+void leer_arreglo(vector<int>& arr) {
+    for (size_t i = 0; i < arr.size(); i++) {
+        if (!(cin >> arr[i])) {
+            cerr << "Error al leer elemento " << i << endl;
+            exit(1);
+        }
+    }
+}
+
+void min_max_prom(const vector<int>& arr, int& minv, int& maxv, double& prom) {
+    if (arr.empty()) {
+        minv = maxv = 0;
+        prom = 0.0;
+        return;
+    }
+    
+    minv = numeric_limits<int>::max();
+    maxv = numeric_limits<int>::min();
+    long long suma = 0;
+    
+    for (const int& val : arr) {
+        if (val < minv) minv = val;
+        if (val > maxv) maxv = val;
+        suma += val;
+    }
+    
+    prom = static_cast<double>(suma) / arr.size();
+}
+
+void ejercicio1() {
+    cout << "\n========== EJERCICIO 1: Estadísticas de Arreglo ==========\n";
+    size_t n;
+    cout << "Ingrese n: ";
+    if (!(cin >> n) || n == 0 || n > 100000) {
+        cerr << "n inválido\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+    
+    vector<int> arr(n);
+    cout << "Ingrese " << n << " enteros:\n";
+    leer_arreglo(arr);
+    
+    int minv, maxv;
+    double prom;
+    min_max_prom(arr, minv, maxv, prom);
+    
+    cout << fixed << setprecision(2);
+    cout << "min=" << minv << " max=" << maxv << " prom=" << prom << "\n";
+}
+
+
+/* ============================================================
+   EJERCICIO 2: Rotación circular in-place — 12 pts
+   ============================================================ */
+
+void rotar_derecha(vector<int>& arr, size_t k) {
+    if (arr.empty()) return;
+    k = k % arr.size();
+    if (k == 0) return;
+    
+    // Usar reverse de STL
+    reverse(arr.begin(), arr.end());
+    reverse(arr.begin(), arr.begin() + k);
+    reverse(arr.begin() + k, arr.end());
+}
+
+void imprimir_arreglo(const vector<int>& arr) {
+    cout << "[";
+    for (size_t i = 0; i < arr.size(); i++) {
+        cout << arr[i];
+        if (i < arr.size() - 1) cout << ",";
+    }
+    cout << "]\n";
+}
+
+void ejercicio2() {
+    cout << "\n========== EJERCICIO 2: Rotación Circular ==========\n";
+    size_t n, k;
+    cout << "Ingrese n: ";
+    if (!(cin >> n) || n == 0) {
+        cerr << "n inválido\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+    
+    vector<int> arr(n);
+    cout << "Ingrese " << n << " enteros:\n";
+    for (size_t i = 0; i < n; i++) {
+        if (!(cin >> arr[i])) {
+            cerr << "Error de lectura\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return;
+        }
+    }
+    
+    cout << "Ingrese k (posiciones a rotar): ";
+    if (!(cin >> k)) {
+        cerr << "k inválido\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+    
+    cout << "Original: ";
+    imprimir_arreglo(arr);
+    
+    rotar_derecha(arr, k);
+    
+    cout << "Rotado " << k << " posiciones: ";
+    imprimir_arreglo(arr);
+}
+
+
+/* ============================================================
+   EJERCICIO 3: Normalizar cadenas — 12 pts
+   ============================================================ */
+
+string normalizar_espacios(const string& in) {
+    string out;
+    bool en_espacio = true;
+    
+    for (char c : in) {
+        if (isspace(c)) {
+            if (!en_espacio) {
+                out += ' ';
+                en_espacio = true;
+            }
+        } else {
+            out += c;
+            en_espacio = false;
+        }
+    }
+    
+    // Eliminar espacio final si existe
+    if (!out.empty() && out.back() == ' ') {
+        out.pop_back();
+    }
+    
+    return out;
+}
+
+void ejercicio3() {
+    cout << "\n========== EJERCICIO 3: Normalizar Cadenas ==========\n";
+    string input;
+    
+    cout << "Ingrese una línea (máx 1000 chars):\n";
+    cin.ignore(); // Limpiar buffer
+    if (!getline(cin, input)) {
+        cerr << "Error de lectura\n";
+        return;
+    }
+    
+    string output = normalizar_espacios(input);
+    
+    cout << "Entrada: \"" << input << "\"\n";
+    cout << "Salida: \"" << output << "\" (longitud " << output.length() << ")\n";
+}
+
+
+/* ============================================================
+   EJERCICIO 4: Matriz - suma por filas y columnas — 15 pts
+   ============================================================ */
+
+void mat_sumas(const vector<vector<int>>& mat, vector<int>& sumF, vector<int>& sumC) {
+    size_t m = mat.size();
+    size_t n = mat[0].size();
+    
+    sumF.assign(m, 0);
+    sumC.assign(n, 0);
+    
+    for (size_t i = 0; i < m; i++) {
+        for (size_t j = 0; j < n; j++) {
+            sumF[i] += mat[i][j];
+            sumC[j] += mat[i][j];
+        }
+    }
+}
+
+void ejercicio4() {
+    cout << "\n========== EJERCICIO 4: Suma por Filas y Columnas ==========\n";
+    size_t m, n;
+    
+    cout << "Ingrese m (filas) y n (columnas): ";
+    if (!(cin >> m >> n) || m == 0 || n == 0) {
+        cerr << "Dimensiones inválidas\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+    
+    vector<vector<int>> mat(m, vector<int>(n));
+    
+    cout << "Ingrese la matriz (" << m << "x" << n << "):\n";
+    for (size_t i = 0; i < m; i++) {
+        for (size_t j = 0; j < n; j++) {
+            if (!(cin >> mat[i][j])) {
+                cerr << "Error de lectura\n";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                return;
+            }
+        }
+    }
+    
+    vector<int> sumF, sumC;
+    mat_sumas(mat, sumF, sumC);
+    
+    cout << "sumF: [";
+    for (size_t i = 0; i < sumF.size(); i++) {
+        cout << sumF[i];
+        if (i < sumF.size() - 1) cout << ",";
+    }
+    cout << "]\n";
+    
+    cout << "sumC: [";
+    for (size_t j = 0; j < sumC.size(); j++) {
+        cout << sumC[j];
+        if (j < sumC.size() - 1) cout << ",";
+    }
+    cout << "]\n";
+}
+
+
+/* ============================================================
+   EJERCICIO 5: Struct + funciones - estudiantes — 15 pts
+   ============================================================ */
+
+struct Estudiante {
+    string nombre;
+    int edad;
+    double promedio;
+};
+
+bool cmp_prom_desc(const Estudiante& a, const Estudiante& b) {
+    return a.promedio > b.promedio;
+}
+
+int buscar_nombre(const vector<Estudiante>& v, const string& clave) {
+    for (size_t i = 0; i < v.size(); i++) {
+        if (v[i].nombre == clave) {
+            return static_cast<int>(i);
+        }
+    }
+    return -1;
+}
+
+void leer_estudiantes(vector<Estudiante>& v) {
+    cin.ignore();
+    for (size_t i = 0; i < v.size(); i++) {
+        cout << "\nEstudiante " << (i + 1) << ":\n";
+        cout << "Nombre: ";
+        getline(cin, v[i].nombre);
+        cout << "Edad: ";
+        cin >> v[i].edad;
+        cout << "Promedio: ";
+        cin >> v[i].promedio;
+        cin.ignore();
+    }
+}
+
+void imprimir_estudiante(const Estudiante& e) {
+    cout << left << setw(20) << e.nombre 
+         << " Edad: " << setw(2) << e.edad 
+         << " Promedio: " << fixed << setprecision(2) << e.promedio << "\n";
+}
+
+void ejercicio5() {
+    cout << "\n========== EJERCICIO 5: Registro de Estudiantes ==========\n";
+    size_t n;
+    
+    cout << "Ingrese número de estudiantes: ";
+    if (!(cin >> n) || n == 0) {
+        cerr << "Número inválido\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+    
+    vector<Estudiante> estudiantes(n);
+    leer_estudiantes(estudiantes);
+    
+    sort(estudiantes.begin(), estudiantes.end(), cmp_prom_desc);
+    
+    cout << "\n=== TOP estudiantes por promedio ===\n";
+    size_t top = min(n, size_t(3));
+    for (size_t i = 0; i < top; i++) {
+        cout << (i + 1) << ". ";
+        imprimir_estudiante(estudiantes[i]);
+    }
+    
+    string buscar;
+    cout << "\nIngrese nombre a buscar: ";
+    getline(cin, buscar);
+    
+    int idx = buscar_nombre(estudiantes, buscar);
+    if (idx >= 0) {
+        cout << "\nEncontrado en posición " << idx << ":\n";
+        imprimir_estudiante(estudiantes[idx]);
+    } else {
+        cout << "\nNo se encontró '" << buscar << "'\n";
+    }
+}
+
+
+/* ============================================================
+   EJERCICIO 6: Lista dinámica simple — 16 pts
+   ============================================================ */
+
+struct Nodo {
+    int x;
+    Nodo* sig;
+    
+    Nodo(int val) : x(val), sig(nullptr) {}
+};
+
+class Lista {
+private:
+    Nodo* cabeza;
+    size_t tam;
+    
+public:
+    Lista() : cabeza(nullptr), tam(0) {}
+    
+    ~Lista() {
+        clear();
+    }
+    
+    void push_front(int x) {
+        Nodo* nuevo = new Nodo(x);
+        nuevo->sig = cabeza;
+        cabeza = nuevo;
+        tam++;
+    }
+    
+    void push_back(int x) {
+        Nodo* nuevo = new Nodo(x);
+        
+        if (!cabeza) {
+            cabeza = nuevo;
+        } else {
+            Nodo* actual = cabeza;
+            while (actual->sig) {
+                actual = actual->sig;
+            }
+            actual->sig = nuevo;
+        }
+        tam++;
+    }
+    
+    bool pop_front(int& valor) {
+        if (!cabeza) return false;
+        
+        Nodo* temp = cabeza;
+        valor = temp->x;
+        cabeza = temp->sig;
+        delete temp;
+        tam--;
+        return true;
+    }
+    
+    size_t size() const {
+        return tam;
+    }
+    
+    void clear() {
+        Nodo* actual = cabeza;
+        while (actual) {
+            Nodo* temp = actual;
+            actual = actual->sig;
+            delete temp;
+        }
+        cabeza = nullptr;
+        tam = 0;
+    }
+    
+    void imprimir() const {
+        Nodo* actual = cabeza;
+        while (actual) {
+            cout << actual->x;
+            if (actual->sig) cout << " ";
+            actual = actual->sig;
+        }
+        cout << "\n";
+    }
+};
+
+void ejercicio6() {
+    cout << "\n========== EJERCICIO 6: Lista Enlazada ==========\n";
+    Lista lista;
+    
+    string comando;
+    int valor;
+    
+    cout << "Comandos: pf <n>, pb <n>, pop, fin\n";
+    
+    while (true) {
+        if (!(cin >> comando)) break;
+        
+        if (comando == "fin") {
+            break;
+        } else if (comando == "pf") {
+            if (cin >> valor) {
+                lista.push_front(valor);
+                cout << "Push front: " << valor << "\n";
+            }
+        } else if (comando == "pb") {
+            if (cin >> valor) {
+                lista.push_back(valor);
+                cout << "Push back: " << valor << "\n";
+            }
+        } else if (comando == "pop") {
+            if (lista.pop_front(valor)) {
+                cout << "Pop front: " << valor << "\n";
+            } else {
+                cout << "Lista vacía\n";
+            }
+        }
+    }
+    
+    cout << "\nContenido final: ";
+    lista.imprimir();
+    cout << "Tamaño: " << lista.size() << "\n";
+}
+
+
+/* ============================================================
+   EJERCICIO 7: Punteros a función (callbacks) — 10 pts
+   ============================================================ */
+
+int doble(int x) {
+    return x * 2;
+}
+
+int cuadrado(int x) {
+    return x * x;
+}
+
+void aplicar(vector<int>& arr, int (*op)(int)) {
+    for (int& val : arr) {
+        val = op(val);
+    }
+}
+
+void ejercicio7() {
+    cout << "\n========== EJERCICIO 7: Callbacks (Punteros a Función) ==========\n";
+    size_t n;
+    
+    cout << "Ingrese n: ";
+    if (!(cin >> n) || n == 0) {
+        cerr << "n inválido\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+    
+    vector<int> arr(n);
+    cout << "Ingrese " << n << " enteros:\n";
+    for (size_t i = 0; i < n; i++) {
+        if (!(cin >> arr[i])) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return;
+        }
+    }
+    
+    cout << "Original: ";
+    imprimir_arreglo(arr);
+    
+    int opcion;
+    while (true) {
+        cout << "\n1. Doble  2. Cuadrado  3. Salir\nOpción: ";
+        if (!(cin >> opcion)) break;
+        
+        if (opcion == 1) {
+            aplicar(arr, doble);
+            cout << "Después doble: ";
+            imprimir_arreglo(arr);
+        } else if (opcion == 2) {
+            aplicar(arr, cuadrado);
+            cout << "Después cuadrado: ";
+            imprimir_arreglo(arr);
+        } else if (opcion == 3) {
+            break;
+        }
+    }
+}
+
+
+/* ============================================================
+   EJERCICIO 8: Archivo + estructuras - ventas — 10 pts
+   ============================================================ */
+
+struct Venta {
+    string producto;
+    int unidades;
+    double precio;
+};
+
+vector<Venta> cargar_ventas(const string& archivo) {
+    vector<Venta> ventas;
+    ifstream file(archivo);
+    
+    if (!file.is_open()) {
+        cerr << "No se pudo abrir " << archivo << "\n";
+        return ventas;
+    }
+    
+    string linea;
+    while (getline(file, linea)) {
+        stringstream ss(linea);
+        string producto, unidades_str, precio_str;
+        
+        if (getline(ss, producto, ',') &&
+            getline(ss, unidades_str, ',') &&
+            getline(ss, precio_str)) {
+            
+            Venta v;
+            v.producto = producto;
+            v.unidades = stoi(unidades_str);
+            v.precio = stod(precio_str);
+            ventas.push_back(v);
+        }
+    }
+    
+    file.close();
+    return ventas;
+}
+
+void estadisticas_ventas(const vector<Venta>& ventas) {
+    if (ventas.empty()) return;
+    
+    double total = 0.0;
+    int max_unidades = ventas[0].unidades;
+    string producto_top = ventas[0].producto;
+    
+    for (const auto& v : ventas) {
+        total += v.unidades * v.precio;
+        if (v.unidades > max_unidades) {
+            max_unidades = v.unidades;
+            producto_top = v.producto;
+        }
+    }
+    
+    cout << fixed << setprecision(2);
+    cout << "\n=== Estadísticas ===\n";
+    cout << "Total: $" << total << "\n";
+    cout << "Más vendido: " << producto_top << " (" << max_unidades << ")\n";
+    cout << "Ticket prom: $" << (total / ventas.size()) << "\n";
+}
+
+void ejercicio8() {
+    cout << "\n========== EJERCICIO 8: Ventas CSV ==========\n";
+    string archivo;
+    
+    cout << "Archivo CSV: ";
+    if (!(cin >> archivo)) return;
+    
+    vector<Venta> ventas = cargar_ventas(archivo);
+    
+    if (ventas.empty()) {
+        cerr << "Error al cargar ventas\n";
+        return;
+    }
+    
+    cout << "\nVentas: " << ventas.size() << "\n";
+    for (size_t i = 0; i < ventas.size(); i++) {
+        cout << (i + 1) << ". " << ventas[i].producto 
+             << " - " << ventas[i].unidades 
+             << " @ $" << fixed << setprecision(2) << ventas[i].precio << "\n";
+    }
+    
+    estadisticas_ventas(ventas);
+}
+
+
+/* ============================================================
+   MENÚ PRINCIPAL
+   ============================================================ */
+
+int main() {
+    int opcion;
+    
+    cout << "╔════════════════════════════════════════════╗\n";
+    cout << "║   EXAMEN DE PROGRAMACIÓN EN C++ - MENÚ    ║\n";
+    cout << "╚════════════════════════════════════════════╝\n";
+    
+    while (true) {
+        cout << "\n┌────────────────────────────────────────┐\n";
+        cout << "│ Seleccione un ejercicio:               │\n";
+        cout << "├────────────────────────────────────────┤\n";
+        cout << "│ 1. Estadísticas de arreglo             │\n";
+        cout << "│ 2. Rotación circular                   │\n";
+        cout << "│ 3. Normalizar cadenas                  │\n";
+        cout << "│ 4. Suma por filas y columnas           │\n";
+        cout << "│ 5. Registro de estudiantes             │\n";
+        cout << "│ 6. Lista enlazada                      │\n";
+        cout << "│ 7. Callbacks (punteros a función)      │\n";
+        cout << "│ 8. Ventas CSV                          │\n";
+        cout << "│ 0. Salir                               │\n";
+        cout << "└────────────────────────────────────────┘\n";
+        cout << "Opción: ";
+        
+        if (!(cin >> opcion)) {
+            cout << "Entrada inválida\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+        
+        switch (opcion) {
+            case 1: ejercicio1(); break;
+            case 2: ejercicio2(); break;
+            case 3: ejercicio3(); break;
+            case 4: ejercicio4(); break;
+            case 5: ejercicio5(); break;
+            case 6: ejercicio6(); break;
+            case 7: ejercicio7(); break;
+            case 8: ejercicio8(); break;
+            case 0:
+                cout << "\n¡Hasta luego!\n";
+                return 0;
+            default:
+                cout << "Opción inválida\n";
+        }
+    }
+    
+    return 0;
+}
